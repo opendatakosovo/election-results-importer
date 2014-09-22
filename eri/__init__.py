@@ -17,10 +17,10 @@ def import_data(csv_filepath, commune):
     :param commune: the slug of the commune.
     '''
     data_table = create_data_table(csv_filepath)
-    docs = create_election_result_documents(data_table)
+    docs = create_election_result_documents(data_table, commune)
     persist_in_mongo(docs)
 
-    return 25
+    return len(docs)
 
 
 def create_data_table(csv_filepath):
@@ -28,30 +28,27 @@ def create_data_table(csv_filepath):
 
     with open(csv_filepath, 'rb') as csvfile:
         reader = csv.reader(csvfile)
-        index = 0
         for row in reader:
-            #print len(row)
-            #print "Data at index %i:" % index
-            #print row
             data_table.append(row)
-            index = index + 1
-        #print data_table
     return data_table
 
 
-def create_election_result_documents(data_table):
+def create_election_result_documents(data_table, commune):
     docs = []
 
     for column_index in range(1, len(data_table[0])):
-        doc_dict = {"_id": str(ObjectId())}
+        doc_dict = {
+            "_id": str(ObjectId()),
+            'commune': commune
+        }
 
         for row_index in range(0, len(data_table)):
             if row_index == 0:
-                doc_dict['year'] = data_table[row_index][column_index]
+                doc_dict['year'] = int(data_table[row_index][column_index])
             elif row_index == 1:
-                doc_dict['type'] = data_table[row_index][column_index]
+                doc_dict['type'] = slugify(data_table[row_index][column_index])
             else:
-                doc_dict[data_table[row_index][0]] = data_table[row_index][column_index]
+                doc_dict[data_table[row_index][0]] = int(data_table[row_index][column_index])
 
         print doc_dict
         print
