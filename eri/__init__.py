@@ -36,6 +36,8 @@ def create_data_table(csv_filepath):
 def create_election_result_documents(data_table, name):
     docs = []
 
+    previous_type_name = ''
+
     for column_index in range(1, len(data_table[0])):
         doc_dict = {
             "_id": str(ObjectId()),
@@ -49,7 +51,24 @@ def create_election_result_documents(data_table, name):
             if row_index == 0:
                 doc_dict['year'] = int(data_table[row_index][column_index])
             elif row_index == 1:
-                doc_dict['type'] = slugify(data_table[row_index][column_index])
+
+                type_name = data_table[row_index][column_index]
+                type_slug = slugify(type_name)
+
+                if type_slug not in ['assembly', 'national', 'mayoral']:
+                    doc_dict['round'] = 2
+                    type_name = previous_type_name
+                    type_slug = slugify(type_name)
+
+                else:
+                    doc_dict['round'] = 1
+                    previous_type_name = type_name
+
+                doc_dict['type'] = {
+                    'name': type_name,
+                    'slug': type_slug
+                }
+
             else:
                 doc_dict[data_table[row_index][0]] = int(data_table[row_index][column_index])
 
