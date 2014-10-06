@@ -14,7 +14,7 @@ def import_data(csv_filepath, commune):
     ''' Imports deputy wealth declaration data.
     From a CSV file into a MongoDB collection.
     :param csv_filepath: the path of the CSV file.
-    :param commune: the slug of the commune.
+    :param commune: the name of the commune.
     '''
     data_table = create_data_table(csv_filepath)
     docs = create_election_result_documents(data_table, commune)
@@ -33,13 +33,16 @@ def create_data_table(csv_filepath):
     return data_table
 
 
-def create_election_result_documents(data_table, commune):
+def create_election_result_documents(data_table, name):
     docs = []
 
     for column_index in range(1, len(data_table[0])):
         doc_dict = {
             "_id": str(ObjectId()),
-            'commune': commune
+            'commune': {
+                'name': name,
+                'slug': slugify(name)
+            }
         }
 
         for row_index in range(0, len(data_table)):
