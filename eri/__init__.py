@@ -46,6 +46,7 @@ def create_election_result_documents(data_table, name):
                 'slug': slugify(name)
             }
         }
+        doc_dict['parties'] = []
 
         for row_index in range(0, len(data_table)):
             if row_index == 0:
@@ -70,7 +71,13 @@ def create_election_result_documents(data_table, name):
                 }
 
             else:
-                doc_dict[data_table[row_index][0]] = int(data_table[row_index][column_index])
+                #doc_dict[data_table[row_index][0]] = int(data_table[row_index][column_index])
+                doc_dict['parties'].append(
+                    {
+                        'party': data_table[row_index][0],
+                        'votes': int(data_table[row_index][column_index])
+                    }
+                )
 
         print doc_dict
         print
